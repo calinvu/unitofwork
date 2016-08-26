@@ -5,8 +5,8 @@ namespace UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        IList<T> RunSqlQuery<T>(string queryString);
-        IRepository<T> Repository<T>();
+        IList<T> RunSqlQuery<T>(string queryString) where T : class;
+        IRepository<T> Repository<T>() where T : class;
         void Commit();
         void Rollback();
     }

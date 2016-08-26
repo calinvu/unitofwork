@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate;
+using System.Data.Entity;
+using System.Linq;
 
-namespace UnitOfWork.nHibernate
+namespace UnitOfWork.EntityFramework
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private ISession Session { get; set; }
-        private ITransaction Transaction { get; set; }
+        private DbContext Session { get; set; }
+        private DbContextTransaction Transaction { get; set; }
 
         public UnitOfWork(string connectionString)
         {
             //TODO: add injectable generic factory for creating the session 
-            //Session = DataAccessConfiguration.CreateSessionFactory(connectionString).OpenSession();
-            Session.FlushMode = FlushMode.Commit;
-            Transaction = Session.BeginTransaction();
+            
+            Session = new DbContext(connectionString);
+            Transaction = null;//new DbContextTransaction(Session);
         }
 
         public IRepository<T> Repository<T>() where T : class
@@ -24,24 +25,24 @@ namespace UnitOfWork.nHibernate
 
         public IList<T> RunSqlQuery<T>(string queryString) where T : class
         {
-            return Session.CreateSQLQuery(queryString).List<T>();
+            return Session.Set<T>().SqlQuery(queryString).ToList();
         }
 
         public void Commit()
         {
-            if (!Transaction.IsActive)
-            {
-                throw new InvalidOperationException("No active transaction");
-            }
-            Transaction.Commit();
+            //if (!Transaction.IsActive)
+            //{
+            //    throw new InvalidOperationException("No active transaction");
+            //}
+            //Transaction.Commit();
         }
 
         public void Rollback()
         {
-            if (Transaction.IsActive)
-            {
-                Transaction.Rollback();
-            }
+            //if (Transaction.IsActive)
+            //{
+            //    Transaction.Rollback();
+            //}
         }
 
         public void Dispose()
